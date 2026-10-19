@@ -1,9 +1,8 @@
 events = {}
 eventNum = 1
 
-def viewCalendar():
-    for event in events:
-        print(events[event])
+def viewCalendar(typeCal):
+
 
 def addEvent():
     global eventNum
@@ -31,10 +30,11 @@ def addEvent():
         'desc':eventDesc
     }
     eventNum += 1
+    print("Event added.")
 
 while True:
     event = int(input("What would you like to do? \n 1. View calendar \n 2. Add a new event \n"))
     if event == 1:
-        viewCalendar()
+        viewCalendar(input("What type?"))
     elif event == 2:
         addEvent()
