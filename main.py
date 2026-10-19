@@ -1,7 +1,9 @@
+import datetime
+
 events = {}
 eventNum = 1
 
-def viewEvents():
+def viewAllEvents():
     print("--------")
     for eventNum, details in events.items():
         print('Record',eventNum)
@@ -10,6 +12,12 @@ def viewEvents():
         print("\n")
     print("--------")
 
+def viewUpcomingEvent():
+    currentDate = datetime.datetime.now()
+    print(currentDate)
+    for eventNum, details in events.items():
+        eventDate = details['date']
+        print(eventDate)
 
 def addEvent():
     global eventNum
@@ -40,8 +48,10 @@ def addEvent():
     print("Event added.")
 
 while True:
-    event = int(input("What would you like to do? \n 1. View calendar \n 2. Add a new event \n"))
+    event = int(input("What would you like to do? \n 1. View all events \n 2. Add a new event \n 3. View upcoming event"))
     if event == 1:
-        viewEvents()
+        viewAllEvents()
     elif event == 2:
         addEvent()
+    elif event == 3:
+        viewUpcomingEvent()
