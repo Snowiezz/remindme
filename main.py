@@ -8,12 +8,23 @@ def viewCalendar():
 def addEvent():
     global eventNum
     eventType = input("Is the event recurring (R) or one-time (O)?")
+    if eventType == 'R':
+        while True:
+            eventFreq = input("How frequent? Daily (D), Weekly (W), Bi-Weekly (BW), Monthly (M)").strip().upper()
+
+            if eventFreq in {"D","W","BW","M"}:
+                break
+            print('Please enter D,W,BW,M')
+    else:
+        eventFreq = None
+
     eventDate = input("When is the date? (DDMMYY)")
     eventTime = input("When is the time? (24hrs)")
     eventMod = input("Module code?")
     eventDesc = input("What is the description?")
     events[eventNum] = {
         'type':eventType,
+        'freq':eventFreq,
         'date':eventDate,
         'time':eventTime,
         'mod':eventMod,
