@@ -4,7 +4,7 @@ events = {
     1: {
         'type': 'O',
         'freq': None,
-        'date': '231026',
+        'date': datetime.date(2026, 10, 23),
         'time': '14:00',
         'mod': 'CS101',
         'desc': 'Programming worksheet due today'
@@ -12,7 +12,7 @@ events = {
     2: {
         'type': 'O',
         'freq': None,
-        'date': '221026',
+        'date': datetime.date(2026, 10, 22),
         'time': '17:00',
         'mod': 'CS102',
         'desc': 'Submit maths problem sheet'
@@ -20,7 +20,7 @@ events = {
     3: {
         'type': 'R',
         'freq': 'W',
-        'date': '241026',
+        'date': datetime.date(2026, 10, 24),
         'time': '09:00',
         'mod': '',
         'desc': 'Work shift'
@@ -28,7 +28,7 @@ events = {
     4: {
         'type': 'O',
         'freq': None,
-        'date': '261026',
+        'date': datetime.date(2026, 10, 26),
         'time': '12:00',
         'mod': 'CS103',
         'desc': 'Deadline exactly seven days away'
@@ -36,7 +36,7 @@ events = {
     5: {
         'type': 'R',
         'freq': 'BW',
-        'date': '021126',
+        'date': datetime.date(2026, 11, 2),
         'time': '11:00',
         'mod': 'CS101',
         'desc': 'Fortnightly programming tutorial'
@@ -44,7 +44,7 @@ events = {
     6: {
         'type': 'O',
         'freq': None,
-        'date': '181126',
+        'date': datetime.date(2026, 11, 18),
         'time': '15:00',
         'mod': 'CS102',
         'desc': 'Deadline exactly thirty days away'
@@ -52,7 +52,7 @@ events = {
     7: {
         'type': 'O',
         'freq': None,
-        'date': '011226',
+        'date': datetime.date(2026, 12, 1),
         'time': '10:00',
         'mod': 'CS103',
         'desc': 'Project presentation beyond thirty days'
@@ -60,7 +60,7 @@ events = {
     8: {
         'type': 'O',
         'freq': None,
-        'date': '181026',
+        'date': datetime.date(2026, 10, 18),
         'time': '16:00',
         'mod': 'CS101',
         'desc': 'Past deadline'
@@ -87,6 +87,12 @@ def viewAllEvents():
 
 def addEvent():
     global eventNum
+
+    eventDate = input("When is the date? (DDMMYY)")
+    startDate = datetime.datetime.strptime(eventDate, "%d%m%y").date()
+    eventTime = input("When is the time? (24hrs)")
+    eventMod = input("Module code?")
+    eventDesc = input("What is the description?")
     eventType = input("Is the event recurring (R) or one-time (O)?")
     if eventType == 'R':
         while True:
@@ -95,17 +101,58 @@ def addEvent():
             if eventFreq in {"D","W","BW","M"}:
                 break
             print('Please enter D,W,BW,M')
+        if eventFreq == "D":
+            for i in range(1,365):
+                events[eventNum] = {
+                    'type':eventType,
+                    'freq':eventFreq,
+                    'date':startDate + datetime.timedelta(days = i),
+                    'time':eventTime,
+                    'mod':eventMod,
+                    'desc':eventDesc
+                }
+                eventNum += 1
+        elif eventFreq == "W":
+            for i in range(7,365,7):
+                events[eventNum] = {
+                    'type':eventType,
+                    'freq':eventFreq,
+                    'date':startDate + datetime.timedelta(days = i),
+                    'time':eventTime,
+                    'mod':eventMod,
+                    'desc':eventDesc
+                }
+                eventNum += 1
+        elif eventFreq == "BW":
+            for i in range(14,365,14):
+                events[eventNum] = {
+                    'type':eventType,
+                    'freq':eventFreq,
+                    'date':startDate + datetime.timedelta(days = i),
+                    'time':eventTime,
+                    'mod':eventMod,
+                    'desc':eventDesc
+                }
+                eventNum += 1
+        else:
+            for i in range(30,365,30):
+                events[eventNum] = {
+                    'type':eventType,
+                    'freq':eventFreq,
+                    'date':startDate + datetime.timedelta(days = i),
+                    'time':eventTime,
+                    'mod':eventMod,
+                    'desc':eventDesc
+                } 
+                eventNum += 1
+
     else:
         eventFreq = None
-
-    eventDate = input("When is the date? (DDMMYY)")
-    eventTime = input("When is the time? (24hrs)")
-    eventMod = input("Module code?")
-    eventDesc = input("What is the description?")
+    
     events[eventNum] = {
         'type':eventType,
         'freq':eventFreq,
-        'date':eventDate,
+        'date':startDate,
         'time':eventTime,
         'mod':eventMod,
         'desc':eventDesc
@@ -117,14 +164,14 @@ def viewUpcomingEvent():
     week = []
     month = []
     year = []
-    for eventNum, details in sorted(events.items(), key=lambda item: datetime.datetime.strptime(item[1]['date'], "%d%m%y")):
-        eventDate = datetime.datetime.strptime(details['date'], "%d%m%y").date()
+    for eventNum, details in sorted(events.items(), key=lambda item: item[1]['date']):
+        eventDate = details['date']
         diff = (eventDate - currentDate).days
-        if 0 < diff <= 7:
+        if 0 <= diff <= 7:
             week.append(eventNum)
-        elif 8 < diff < 30:
+        elif 7 < diff <= 30:
             month.append(eventNum)  
-        else:
+        elif 30 < diff <= 365:
             year.append(eventNum)
     if week:
         print('-----')
@@ -148,8 +195,7 @@ def viewEvent(eventNum):
     print()
     print('Record',eventNum)
     print("Module: ",events[eventNum]['mod'])
-    eventDate = datetime.datetime.strptime(events[eventNum]['date'], "%d%m%y")
-    print("Date: ",eventDate.strftime("%d %B %Y"))
+    print("Date: ", events[eventNum]['date'].strftime("%d %B %Y"))  
     print("Description: ",events[eventNum]['desc'])
     print()
 
