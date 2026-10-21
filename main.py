@@ -87,13 +87,24 @@ def viewAllEvents():
 
 def addEvent():
     global eventNum
-
-    eventDate = input("When is the date? (DDMMYY)")
-    startDate = datetime.datetime.strptime(eventDate, "%d%m%y").date()
-    eventTime = input("When is the time? (24hrs)")
+    while True:
+        try:
+            eventDate = input("When is the date? (DDMMYY)")
+            startDate = datetime.datetime.strptime(eventDate, "%d%m%y").date()
+            break
+        except ValueError:
+            print("Please enter a valid date in DDMMYY format.")
+    while True:
+        eventTime = input("When is the time? (24hrs)")
+        if 0 <= eventTime < 2400:
+            break
+        print("Enter 0000-2400")
     eventMod = input("Module code?")
     eventDesc = input("What is the description?")
-    eventType = input("Is the event recurring (R) or one-time (O)?")
+    while True:
+        eventType = input("Is the event recurring (R) or one-time (O)?").strip().upper()
+        if eventType in {'R','O'}:
+            break
     if eventType == 'R':
         while True:
             eventFreq = input("How frequent? Daily (D), Weekly (W), Bi-Weekly (BW), Monthly (M)").strip().upper()
