@@ -4,7 +4,7 @@ events = {
     1: {
         'type': 'O',
         'freq': None,
-        'date': '191026',
+        'date': '231026',
         'time': '14:00',
         'mod': 'CS101',
         'desc': 'Programming worksheet due today'
@@ -117,12 +117,12 @@ def viewUpcomingEvent():
     week = []
     month = []
     year = []
-    for eventNum, details in events.items():
+    for eventNum, details in sorted(events.items(), key=lambda item: datetime.datetime.strptime(item[1]['date'], "%d%m%y")):
         eventDate = datetime.datetime.strptime(details['date'], "%d%m%y").date()
         diff = (eventDate - currentDate).days
-        if diff < 7:
+        if 0 < diff <= 7:
             week.append(eventNum)
-        elif 7 < diff < 30:
+        elif 8 < diff < 30:
             month.append(eventNum)  
         else:
             year.append(eventNum)
