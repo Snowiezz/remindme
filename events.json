@@ -1,0 +1,74 @@
+{
+    "2": {
+        "type": "O",
+        "freq": null,
+        "date": "2026-10-22",
+        "time": "17:00",
+        "mod": "CS102",
+        "desc": "Submit maths problem sheet"
+    },
+    "3": {
+        "type": "R",
+        "freq": "W",
+        "date": "2026-10-24",
+        "time": "09:00",
+        "mod": "",
+        "desc": "Work shift"
+    },
+    "4": {
+        "type": "O",
+        "freq": null,
+        "date": "2026-10-26",
+        "time": "12:00",
+        "mod": "CS103",
+        "desc": "Deadline exactly seven days away"
+    },
+    "5": {
+        "type": "R",
+        "freq": "BW",
+        "date": "2026-11-02",
+        "time": "11:00",
+        "mod": "CS101",
+        "desc": "Fortnightly programming tutorial"
+    },
+    "6": {
+        "type": "O",
+        "freq": null,
+        "date": "2026-11-18",
+        "time": "15:00",
+        "mod": "CS102",
+        "desc": "Deadline exactly thirty days away"
+    },
+    "7": {
+        "type": "O",
+        "freq": null,
+        "date": "2026-12-01",
+        "time": "10:00",
+        "mod": "CS103",
+        "desc": "Project presentation beyond thirty days"
+    },
+    "8": {
+        "type": "O",
+        "freq": null,
+        "date": "2026-10-18",
+        "time": "16:00",
+        "mod": "CS101",
+        "desc": "Past deadline"
+    },
+    "9": {
+        "type": "O",
+        "freq": null,
+        "date": "2026-10-28",
+        "time": "1222",
+        "mod": "11121",
+        "desc": "Hellop"
+    },
+    "10": {
+        "type": "O",
+        "freq": null,
+        "date": "2026-11-24",
+        "time": "1200",
+        "mod": "11121",
+        "desc": "Hello21"
+    }
+}

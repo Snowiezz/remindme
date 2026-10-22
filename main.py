@@ -1,72 +1,14 @@
 import datetime
+import json
 
-events = {
-    1: {
-        'type': 'O',
-        'freq': None,
-        'date': datetime.date(2026, 10, 23),
-        'time': '14:00',
-        'mod': 'CS101',
-        'desc': 'Programming worksheet due today'
-    },
-    2: {
-        'type': 'O',
-        'freq': None,
-        'date': datetime.date(2026, 10, 22),
-        'time': '17:00',
-        'mod': 'CS102',
-        'desc': 'Submit maths problem sheet'
-    },
-    3: {
-        'type': 'R',
-        'freq': 'W',
-        'date': datetime.date(2026, 10, 24),
-        'time': '09:00',
-        'mod': '',
-        'desc': 'Work shift'
-    },
-    4: {
-        'type': 'O',
-        'freq': None,
-        'date': datetime.date(2026, 10, 26),
-        'time': '12:00',
-        'mod': 'CS103',
-        'desc': 'Deadline exactly seven days away'
-    },
-    5: {
-        'type': 'R',
-        'freq': 'BW',
-        'date': datetime.date(2026, 11, 2),
-        'time': '11:00',
-        'mod': 'CS101',
-        'desc': 'Fortnightly programming tutorial'
-    },
-    6: {
-        'type': 'O',
-        'freq': None,
-        'date': datetime.date(2026, 11, 18),
-        'time': '15:00',
-        'mod': 'CS102',
-        'desc': 'Deadline exactly thirty days away'
-    },
-    7: {
-        'type': 'O',
-        'freq': None,
-        'date': datetime.date(2026, 12, 1),
-        'time': '10:00',
-        'mod': 'CS103',
-        'desc': 'Project presentation beyond thirty days'
-    },
-    8: {
-        'type': 'O',
-        'freq': None,
-        'date': datetime.date(2026, 10, 18),
-        'time': '16:00',
-        'mod': 'CS101',
-        'desc': 'Past deadline'
-    }
-}
+with open('events.json','r') as f:
+    rawevents = json.load(f)
 
+events = {}
+
+for eventId, details in rawevents.items():
+    details['date'] = datetime.date.fromisoformat(details['date'])
+    events[int(eventId)] = details
 eventNum = max(events, default=0) + 1
 
 
@@ -81,12 +23,21 @@ def viewAllEvents():
     print("--------")
 
 
+def saveEvents():
+    eventsToSave = {}
+    for eventId, details in events.items():
+        savedDetails = details.copy()
+        savedDetails['date'] = details['date'].isoformat()
+        eventsToSave[eventId] = savedDetails
 
+    with open('events.json', 'w') as f:
+        json.dump(eventsToSave, f, indent=4)
 
     
 
 def addEvent():
     global eventNum
+    newEvent = {}
     while True:
         try:
             eventDate = input("When is the date? (DDMMYY)")
@@ -96,7 +47,7 @@ def addEvent():
             print("Please enter a valid date in DDMMYY format.")
     while True:
         eventTime = input("When is the time? (24hrs)")
-        if 0 <= eventTime < 2400:
+        if 0 <= int(eventTime) < 2400:
             break
         print("Enter 0000-2400")
     eventMod = input("Module code?")
@@ -114,7 +65,7 @@ def addEvent():
             print('Please enter D,W,BW,M')
         if eventFreq == "D":
             for i in range(1,365):
-                events[eventNum] = {
+                newEvent[eventNum] = {
                     'type':eventType,
                     'freq':eventFreq,
                     'date':startDate + datetime.timedelta(days = i),
@@ -125,7 +76,7 @@ def addEvent():
                 eventNum += 1
         elif eventFreq == "W":
             for i in range(7,365,7):
-                events[eventNum] = {
+                newEvent[eventNum] = {
                     'type':eventType,
                     'freq':eventFreq,
                     'date':startDate + datetime.timedelta(days = i),
@@ -136,7 +87,7 @@ def addEvent():
                 eventNum += 1
         elif eventFreq == "BW":
             for i in range(14,365,14):
-                events[eventNum] = {
+                newEvent[eventNum] = {
                     'type':eventType,
                     'freq':eventFreq,
                     'date':startDate + datetime.timedelta(days = i),
@@ -147,7 +98,7 @@ def addEvent():
                 eventNum += 1
         else:
             for i in range(30,365,30):
-                events[eventNum] = {
+                newEvent[eventNum] = {
                     'type':eventType,
                     'freq':eventFreq,
                     'date':startDate + datetime.timedelta(days = i),
@@ -160,7 +111,7 @@ def addEvent():
     else:
         eventFreq = None
     
-    events[eventNum] = {
+    newEvent[eventNum] = {
         'type':eventType,
         'freq':eventFreq,
         'date':startDate,
@@ -169,6 +120,9 @@ def addEvent():
         'desc':eventDesc
     }
     eventNum += 1
+    events.update(newEvent)
+
+    saveEvents()
     print("Event added.")
 def viewUpcomingEvent():
     currentDate = datetime.date.today()
@@ -199,6 +153,16 @@ def viewUpcomingEvent():
         print("Next 365 days")
         for event in year:
             viewEvent(event)
+
+def deleteEvent():
+    id = int(input("What is the record number?: "))
+    removedEvent = events.pop(id,None)
+    if removedEvent is None:
+        print('Event not found')
+    else:
+        print(f'Record {id} has been deleted.')
+        saveEvents()
+
     
 
 
@@ -211,10 +175,12 @@ def viewEvent(eventNum):
     print()
 
 while True:
-    event = int(input("What would you like to do? \n 1. View all events \n 2. Add a new event \n 3. View upcoming event"))
+    event = int(input("What would you like to do? \n 1. View all events \n 2. Add a new event \n 3. View upcoming event \n 4. Delete an event \n Answer :"))
     if event == 1:
         viewAllEvents()
     elif event == 2:
         addEvent()
     elif event == 3:
         viewUpcomingEvent()
+    elif event == 4:
+        deleteEvent()
