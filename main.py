@@ -170,15 +170,20 @@ def deleteEvent():
 
 def editEvent():
     id = int(input("What is the record number?: "))
-    edit = input("What do you want to edit?: (date,time,mod,desc)")
+    if id not in events:
+        print("Invalid record number")
+        return
+    edit = input("What do you want to edit?: (date,time,mod,desc)").strip().lower()
     newentry = input("What do you want to change the field to?")
     if edit in {'date','time','mod','desc'}:
         if edit == 'time':
-            while True:
-                if 0 <= newentry < 2400:
-                    break
-                else:
-                    print("Enter 0000-2400")
+            try:
+                newentry = datetime.datetime.strptime(newentry,'%H%M').strftime('%H%M')
+            except ValueError:
+                print("Not a valid time! 0000-2359")
+                return
+        if edit == 'date':
+            newentry = datetime.datetime.strptime(newentry,'%d%m%y').date()
         events[id][edit] = newentry
     else:
         print("Error, record not found")
@@ -233,6 +238,7 @@ def syncEvents():
                     summary=title,
                     uid=eventUID
                 )
+                existing.append(eventUID)
                 print("event added")
 
 
