@@ -3,6 +3,7 @@ import json
 import caldav
 from getpass import getpass
 from zoneinfo import ZoneInfo
+import uuid
 
 with open('events.json','r') as f:
     rawevents = json.load(f)
@@ -120,7 +121,8 @@ def addEvent():
         'date':startDate,
         'time':eventTime,
         'mod':eventMod,
-        'desc':eventDesc
+        'desc':eventDesc,
+        'uid': str(uuid.uuid4())
     }
     eventNum += 1
     events.update(newEvent)
@@ -201,17 +203,37 @@ def syncEvents():
         ]
         
         calendar = matches[0]
+
+        currentEvents = calendar.get_events()
+
+        existing = []
+        for event in currentEvents:
+            existing.append(str(event.get_icalendar_component()['UID']))
+
         for id,detail in events.items():
             title = detail['desc']
             startTime = datetime.datetime.strptime(detail['time'], "%H%M").time()
 
             start = datetime.datetime.combine(detail['date'],startTime,tzinfo=ZoneInfo("Europe/London"))
 
-            calendar.add_event(
-                dtstart=start,
-                dtend=start + datetime.timedelta(minutes=30),
-                summary=title
-            )
+
+
+            eventUID = detail.get('uid')
+
+            if eventUID is None:
+                detail['uid'] = str(uuid.uuid4())
+                eventUID = detail.get('uid')
+                saveEvents()
+            if eventUID in existing:
+                print('event already in')
+            else:
+                calendar.add_event(
+                    dtstart=start,
+                    dtend=start + datetime.timedelta(minutes=30),
+                    summary=title,
+                    uid=eventUID
+                )
+                print("event added")
 
 
 

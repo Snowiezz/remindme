@@ -5,7 +5,8 @@
         "date": "2026-10-22",
         "time": "1700",
         "mod": "CS102",
-        "desc": "Submit maths problem sheet"
+        "desc": "Submit maths problem sheet",
+        "uid": "3e9709d3-6fb1-4108-a5d6-2982cc8e0358"
     },
     "3": {
         "type": "R",
