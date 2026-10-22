@@ -163,6 +163,24 @@ def deleteEvent():
         print(f'Record {id} has been deleted.')
         saveEvents()
 
+def editEvent():
+    id = int(input("What is the record number?: "))
+    edit = input("What do you want to edit?: (date,time,mod,desc)")
+    newentry = input("What do you want to change the field to?")
+    if edit in {'date','time','mod','desc'}:
+        if edit == 'time':
+            while True:
+                if 0 <= newentry < 2400:
+                    break
+                else:
+                    print("Enter 0000-2400")
+        events[id][edit] = newentry
+    else:
+        print("Error, record not found")
+    saveEvents()
+    print("Event edited.")
+
+
     
 
 
@@ -175,7 +193,7 @@ def viewEvent(eventNum):
     print()
 
 while True:
-    event = int(input("What would you like to do? \n 1. View all events \n 2. Add a new event \n 3. View upcoming event \n 4. Delete an event \n Answer :"))
+    event = int(input("What would you like to do? \n 1. View all events \n 2. Add a new event \n 3. View upcoming event \n 4. Delete an event \n 5. Edit an event \n Answer :"))
     if event == 1:
         viewAllEvents()
     elif event == 2:
@@ -184,3 +202,5 @@ while True:
         viewUpcomingEvent()
     elif event == 4:
         deleteEvent()
+    elif event == 5:
+        editEvent()
