@@ -1,5 +1,8 @@
 import datetime
 import json
+import caldav
+from getpass import getpass
+from zoneinfo import ZoneInfo
 
 with open('events.json','r') as f:
     rawevents = json.load(f)
@@ -181,6 +184,38 @@ def editEvent():
     print("Event edited.")
 
 
+def syncEvents():
+    email = input("Email: ")
+    password = getpass("Password: ")
+    with caldav.DAVClient(
+        url="https://caldav.icloud.com/",
+        username=email,
+        password=password
+    ) as client:
+        calendars = client.get_calendars()
+        calendarName = 'RemindMeNEW'
+
+        matches = [
+            calendar for calendar in calendars
+            if calendar.get_display_name() == calendarName
+        ]
+        
+        calendar = matches[0]
+        for id,detail in events.items():
+            title = detail['desc']
+            startTime = datetime.datetime.strptime(detail['time'], "%H%M").time()
+
+            start = datetime.datetime.combine(detail['date'],startTime,tzinfo=ZoneInfo("Europe/London"))
+
+            calendar.add_event(
+                dtstart=start,
+                dtend=start + datetime.timedelta(minutes=30),
+                summary=title
+            )
+
+
+
+
     
 
 
@@ -193,7 +228,7 @@ def viewEvent(eventNum):
     print()
 
 while True:
-    event = int(input("What would you like to do? \n 1. View all events \n 2. Add a new event \n 3. View upcoming event \n 4. Delete an event \n 5. Edit an event \n Answer :"))
+    event = int(input("What would you like to do? \n 1. View all events \n 2. Add a new event \n 3. View upcoming event \n 4. Delete an event \n 5. Edit an event \n 6. Sync events \n Answer :"))
     if event == 1:
         viewAllEvents()
     elif event == 2:
@@ -204,3 +239,5 @@ while True:
         deleteEvent()
     elif event == 5:
         editEvent()
+    elif event == 6:
+        syncEvents()

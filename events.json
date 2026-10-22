@@ -3,7 +3,7 @@
         "type": "O",
         "freq": null,
         "date": "2026-10-22",
-        "time": "17:00",
+        "time": "1700",
         "mod": "CS102",
         "desc": "Submit maths problem sheet"
     },
@@ -11,7 +11,7 @@
         "type": "R",
         "freq": "W",
         "date": "2026-10-24",
-        "time": "09:00",
+        "time": "0900",
         "mod": "",
         "desc": "Work shift"
     },
@@ -19,7 +19,7 @@
         "type": "O",
         "freq": null,
         "date": "2026-10-26",
-        "time": "12:00",
+        "time": "1200",
         "mod": "CS103",
         "desc": "Deadline exactly seven days away"
     },
@@ -27,7 +27,7 @@
         "type": "R",
         "freq": "BW",
         "date": "2026-11-02",
-        "time": "11:00",
+        "time": "1100",
         "mod": "CS101",
         "desc": "Fortnightly programming tutorial"
     },
@@ -35,7 +35,7 @@
         "type": "O",
         "freq": null,
         "date": "2026-11-18",
-        "time": "15:00",
+        "time": "1500",
         "mod": "CS102",
         "desc": "Deadline exactly thirty days away"
     },
@@ -43,7 +43,7 @@
         "type": "O",
         "freq": null,
         "date": "2026-12-01",
-        "time": "10:00",
+        "time": "1000",
         "mod": "CS103",
         "desc": "Project presentation beyond thirty days"
     },
@@ -51,7 +51,7 @@
         "type": "O",
         "freq": null,
         "date": "2026-10-18",
-        "time": "16:00",
+        "time": "1600",
         "mod": "CS101",
         "desc": "He"
     },
