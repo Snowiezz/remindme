@@ -122,7 +122,8 @@ def addEvent():
         'time':eventTime,
         'mod':eventMod,
         'desc':eventDesc,
-        'uid': str(uuid.uuid4())
+        'uid': str(uuid.uuid4()),
+        'needsUpdating' : False
     }
     eventNum += 1
     events.update(newEvent)
@@ -187,6 +188,7 @@ def editEvent():
         events[id][edit] = newentry
     else:
         print("Error, record not found")
+    events[id]['needsUpdating'] = True
     saveEvents()
     print("Event edited.")
 
@@ -211,6 +213,8 @@ def syncEvents():
 
         currentEvents = calendar.get_events()
 
+
+
         existing = []
         for event in currentEvents:
             existing.append(str(event.get_icalendar_component()['UID']))
@@ -225,12 +229,26 @@ def syncEvents():
 
             eventUID = detail.get('uid')
 
+            needsUpdating = detail.get('needsUpdating',False)
+
             if eventUID is None:
                 detail['uid'] = str(uuid.uuid4())
                 eventUID = detail.get('uid')
                 saveEvents()
-            if eventUID in existing:
+            if eventUID in existing and needsUpdating == False:
                 print('event already in')
+            elif eventUID in existing and needsUpdating:
+                remoteEvent = calendar.event_by_uid(eventUID)
+                comp = remoteEvent.icalendar_component
+
+                for field in ('summary','dtstart','dtend'):
+                    comp.pop(field,None)
+                comp.add('summary', title)
+                comp.add('dtstart',start)
+                comp.add('dtend',start + datetime.timedelta(minutes=30))
+                remoteEvent.save()
+                detail['needsUpdating'] = False
+                print('Event updated')
             else:
                 calendar.add_event(
                     dtstart=start,

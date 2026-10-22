@@ -3,18 +3,21 @@
         "type": "O",
         "freq": null,
         "date": "2026-10-22",
-        "time": "1700",
+        "time": "1959",
         "mod": "CS102",
         "desc": "Submit maths problem sheet",
-        "uid": "3e9709d3-6fb1-4108-a5d6-2982cc8e0358"
+        "uid": "3e9709d3-6fb1-4108-a5d6-2982cc8e0358",
+        "needsUpdating": true
     },
     "3": {
         "type": "R",
         "freq": "W",
         "date": "2026-10-24",
-        "time": "0900",
+        "time": "2000",
         "mod": "",
-        "desc": "Work shift"
+        "desc": "Work shift",
+        "uid": "a5436b45-34b9-47a4-9c76-4d2fc19ee342",
+        "needsUpdating": true
     },
     "4": {
         "type": "O",
@@ -22,7 +25,8 @@
         "date": "2026-10-26",
         "time": "1200",
         "mod": "CS103",
-        "desc": "Deadline exactly seven days away"
+        "desc": "Deadline exactly seven days away",
+        "uid": "d7f6ea91-34de-4d59-b7a3-00185cb63018"
     },
     "5": {
         "type": "R",
@@ -30,7 +34,8 @@
         "date": "2026-11-02",
         "time": "1100",
         "mod": "CS101",
-        "desc": "Fortnightly programming tutorial"
+        "desc": "Fortnightly programming tutorial",
+        "uid": "09212084-d3d8-4055-b437-32bd7ae12bde"
     },
     "6": {
         "type": "O",
@@ -38,7 +43,8 @@
         "date": "2026-11-18",
         "time": "1500",
         "mod": "CS102",
-        "desc": "Deadline exactly thirty days away"
+        "desc": "Deadline exactly thirty days away",
+        "uid": "7d88b8f3-1adb-4d4c-aa74-5f68172b9d43"
     },
     "7": {
         "type": "O",
@@ -46,7 +52,8 @@
         "date": "2026-12-01",
         "time": "1000",
         "mod": "CS103",
-        "desc": "Project presentation beyond thirty days"
+        "desc": "Project presentation beyond thirty days",
+        "uid": "ed4069f2-836c-4114-ac89-358f4687be4d"
     },
     "8": {
         "type": "O",
@@ -54,7 +61,8 @@
         "date": "2026-10-18",
         "time": "1600",
         "mod": "CS101",
-        "desc": "He"
+        "desc": "He",
+        "uid": "f1a224d4-f441-4d3d-91c8-d118a6f00346"
     },
     "9": {
         "type": "O",
@@ -62,7 +70,8 @@
         "date": "2026-10-28",
         "time": "1222",
         "mod": "11121",
-        "desc": "Hellop"
+        "desc": "Hellop",
+        "uid": "fd172bed-2264-4c4b-904c-7e893c79927b"
     },
     "10": {
         "type": "O",
@@ -70,6 +79,7 @@
         "date": "2026-11-24",
         "time": "1200",
         "mod": "11121",
-        "desc": "Hello21"
+        "desc": "Hello21",
+        "uid": "4243a480-0727-4359-bba4-f82b8849ce5d"
     }
 }
