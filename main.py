@@ -61,56 +61,18 @@ def addEvent():
         if eventType in {'R','O'}:
             break
     if eventType == 'R':
+        eventTypes = {
+            'D':'DAILY',
+            'W':'WEEKLY',
+            'M':'MONTHLY'
+        }
         while True:
-            eventFreq = input("How frequent? Daily (D), Weekly (W), Bi-Weekly (BW), Monthly (M)").strip().upper()
+            eventFreq = input("How frequent? Daily (D), Weekly (W), Monthly (M)").strip().upper()
 
-            if eventFreq in {"D","W","BW","M"}:
+            if eventFreq in {"D","W","M"}:
                 break
-            print('Please enter D,W,BW,M')
-        if eventFreq == "D":
-            for i in range(1,365):
-                newEvent[eventNum] = {
-                    'type':eventType,
-                    'freq':eventFreq,
-                    'date':startDate + datetime.timedelta(days = i),
-                    'time':eventTime,
-                    'mod':eventMod,
-                    'desc':eventDesc
-                }
-                eventNum += 1
-        elif eventFreq == "W":
-            for i in range(7,365,7):
-                newEvent[eventNum] = {
-                    'type':eventType,
-                    'freq':eventFreq,
-                    'date':startDate + datetime.timedelta(days = i),
-                    'time':eventTime,
-                    'mod':eventMod,
-                    'desc':eventDesc
-                }
-                eventNum += 1
-        elif eventFreq == "BW":
-            for i in range(14,365,14):
-                newEvent[eventNum] = {
-                    'type':eventType,
-                    'freq':eventFreq,
-                    'date':startDate + datetime.timedelta(days = i),
-                    'time':eventTime,
-                    'mod':eventMod,
-                    'desc':eventDesc
-                }
-                eventNum += 1
-        else:
-            for i in range(30,365,30):
-                newEvent[eventNum] = {
-                    'type':eventType,
-                    'freq':eventFreq,
-                    'date':startDate + datetime.timedelta(days = i),
-                    'time':eventTime,
-                    'mod':eventMod,
-                    'desc':eventDesc
-                } 
-                eventNum += 1
+            print('Please enter D,W,M')
+        eventFreq = eventTypes[eventFreq]
 
     else:
         eventFreq = None
@@ -208,6 +170,10 @@ def syncEvents():
             calendar for calendar in calendars
             if calendar.get_display_name() == calendarName
         ]
+
+        if not matches:
+            print('Error, no calendar found')
+            return
         
         calendar = matches[0]
 
