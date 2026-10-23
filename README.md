@@ -1,3 +1,5 @@
+# RemindMe
+
 This is a command-line calendar manager written in python that stores events locally and syncs them to iCloud calendar using CalDAV.
 
 I built this to keep track of university deadlines, lectures and work shifts, with everything showing up on my calendar via iCloud.
