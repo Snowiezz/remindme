@@ -285,11 +285,16 @@ def dateArg(text):
     try:
         return parseDate(text)
     except ValueError:
-        raise argparse.ArgumentTypeError(f'{text} is not a valid time, use DDMMYY')
+        raise argparse.ArgumentTypeError(f'{text} is not a valid date, use DDMMYY')
 
+def parseTime(text):
+    return datetime.datetime.strptime(text,'%H%M').strftime('%H%M')
 
-
-
+def dateArg(text):
+    try:
+        return parseTime(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f'{text} is not a valid time, use HHMM 24 Hours')
 
 
     
