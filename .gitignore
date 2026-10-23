@@ -1,0 +1,5 @@
+events.json
+deleted_events.json
+__pycache__/
+.venv/
+.vscode/
