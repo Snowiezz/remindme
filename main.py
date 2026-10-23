@@ -146,10 +146,15 @@ def editEvent():
                 print("Not a valid time! 0000-2359")
                 return
         if edit == 'date':
-            newentry = datetime.datetime.strptime(newentry,'%d%m%y').date()
+            try:
+                newentry = datetime.datetime.strptime(newentry,'%d%m%y').date()
+            except ValueError:
+                print("Invalid date!")
+                return
         events[id][edit] = newentry
     else:
-        print("Error, record not found")
+        print("Error, Invalid edit")
+        return
     events[id]['needsUpdating'] = True
     saveEvents()
     print("Event edited.")
@@ -216,14 +221,26 @@ def syncEvents():
                 detail['needsUpdating'] = False
                 print('Event updated')
             else:
-                calendar.add_event(
-                    dtstart=start,
-                    dtend=start + datetime.timedelta(minutes=30),
-                    summary=title,
-                    uid=eventUID
-                )
+                if detail['freq'] is None:
+                    calendar.add_event(
+                        dtstart=start,
+                        dtend=start + datetime.timedelta(minutes=30),
+                        summary=title,
+                        uid=eventUID
+                    )
+                else:
+                    calendar.add_event(
+                        dtstart=start,
+                        dtend=start + datetime.timedelta(minutes=30),
+                        summary=title,
+                        uid=eventUID,
+                        rrule={'FREQ': detail['freq']}
+
+
+                    )
                 existing.append(eventUID)
                 print("event added")
+        saveEvents()
 
 
 
