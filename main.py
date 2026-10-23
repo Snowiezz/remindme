@@ -15,6 +15,9 @@ for eventId, details in rawevents.items():
     events[int(eventId)] = details
 eventNum = max(events, default=0) + 1
 
+with open('deleted_events.json','r') as f:
+    pendingDeletes = json.load(f)
+
 
 
 def viewAllEvents():
@@ -36,6 +39,8 @@ def saveEvents():
 
     with open('events.json', 'w') as f:
         json.dump(eventsToSave, f, indent=4)
+    with open('deleted_events.json','w') as f:
+        json.dump(pendingDeletes,f,indent=4)
 
     
 
@@ -127,9 +132,12 @@ def deleteEvent():
     removedEvent = events.pop(id,None)
     if removedEvent is None:
         print('Event not found')
-    else:
-        print(f'Record {id} has been deleted.')
-        saveEvents()
+        return
+    if removedEvent.get('uid'):
+        pendingDeletes.append(removedEvent['uid'])
+    print(f'Record {id} has been deleted.')
+    saveEvents()
+    
 
 def editEvent():
     id = int(input("What is the record number?: "))
@@ -185,10 +193,23 @@ def syncEvents():
         currentEvents = calendar.get_events()
 
 
+  
+
+
+
 
         existing = []
         for event in currentEvents:
             existing.append(str(event.get_icalendar_component()['UID']))
+
+        # deleted events
+
+        for uid in pendingDeletes:
+            if uid in existing:
+                calendar.event_by_uid(uid).delete()
+                existing.remove(uid)
+                print('Event deleted')
+        pendingDeletes.clear()
 
         for id,detail in events.items():
             title = detail['desc']
