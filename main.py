@@ -4,6 +4,7 @@ import caldav
 from getpass import getpass
 from zoneinfo import ZoneInfo
 import uuid
+from icalendar import Alarm
 
 with open('events.json','r') as f:
     rawevents = json.load(f)
@@ -17,6 +18,13 @@ eventNum = max(events, default=0) + 1
 
 with open('deleted_events.json','r') as f:
     pendingDeletes = json.load(f)
+
+def makeAlarm(title,minutesBefore=60):
+    alarm = Alarm()
+    alarm.add('action','DISPLAY')
+    alarm.add('description',title)
+    alarm.add('trigger', datetime.timedelta(minutes=-minutesBefore))
+    return alarm
 
 
 
@@ -55,10 +63,12 @@ def addEvent():
         except ValueError:
             print("Please enter a valid date in DDMMYY format.")
     while True:
-        eventTime = input("When is the time? (24hrs)")
-        if 0 <= int(eventTime) < 2400:
+        eventTime = input("When is the time? (HHMM, 24hrs)")
+        try:
+            eventTime = datetime.datetime.strptime(eventTime, "%H%M").strftime("%H%M")
             break
-        print("Enter 0000-2400")
+        except ValueError:
+            print("Enter a valid time 0000-2359")
     eventMod = input("Module code?")
     eventDesc = input("What is the description?")
     while True:
@@ -198,16 +208,16 @@ def syncEvents():
 
 
 
-        existing = []
+        existing = {}
         for event in currentEvents:
-            existing.append(str(event.get_icalendar_component()['UID']))
+            existing[str(event.get_icalendar_component()['UID'])] = event
 
         # deleted events
 
         for uid in pendingDeletes:
             if uid in existing:
-                calendar.event_by_uid(uid).delete()
-                existing.remove(uid)
+                existing[uid].delete()
+                del existing[uid]
                 print('Event deleted')
         pendingDeletes.clear()
 
@@ -230,7 +240,7 @@ def syncEvents():
             if eventUID in existing and needsUpdating == False:
                 print('event already in')
             elif eventUID in existing and needsUpdating:
-                remoteEvent = calendar.event_by_uid(eventUID)
+                remoteEvent = existing[eventUID]
                 comp = remoteEvent.icalendar_component
 
                 for field in ('summary','dtstart','dtend'):
@@ -238,6 +248,8 @@ def syncEvents():
                 comp.add('summary', title)
                 comp.add('dtstart',start)
                 comp.add('dtend',start + datetime.timedelta(minutes=30))
+                comp.subcomponents = [c for c in comp.subcomponents if c.name != 'VALARM']
+                comp.add_component(makeAlarm(title))
                 remoteEvent.save()
                 detail['needsUpdating'] = False
                 print('Event updated')
@@ -247,7 +259,10 @@ def syncEvents():
                         dtstart=start,
                         dtend=start + datetime.timedelta(minutes=30),
                         summary=title,
-                        uid=eventUID
+                        uid=eventUID,
+                        alarm_trigger=datetime.timedelta(minutes=-60),
+                        alarm_action='DISPLAY',
+                        alarm_description=title
                     )
                 else:
                     calendar.add_event(
@@ -255,11 +270,11 @@ def syncEvents():
                         dtend=start + datetime.timedelta(minutes=30),
                         summary=title,
                         uid=eventUID,
-                        rrule={'FREQ': detail['freq']}
-
-
+                        rrule={'FREQ': detail['freq']},
+                        alarm_trigger=datetime.timedelta(minutes=-60),
+                        alarm_action='DISPLAY',
+                        alarm_description=title
                     )
-                existing.append(eventUID)
                 print("event added")
         saveEvents()
 
