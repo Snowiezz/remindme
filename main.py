@@ -279,6 +279,16 @@ def syncEvents():
                 print("event added")
         saveEvents()
 
+def parseDate(text):
+    return datetime.datetime.strptime(text,'%d%m%y').date()
+def dateArg(text):
+    try:
+        return parseDate(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f'{text} is not a valid time, use DDMMYY')
+
+
+
 
 
 
