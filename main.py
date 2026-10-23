@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 import uuid
 from icalendar import Alarm
 import argparse
+import sys
 
 with open('events.json','r') as f:
     rawevents = json.load(f)
@@ -19,6 +20,14 @@ eventNum = max(events, default=0) + 1
 
 with open('deleted_events.json','r') as f:
     pendingDeletes = json.load(f)
+
+
+#parse
+def parseDate(text):
+    return datetime.datetime.strptime(text,'%d%m%y').date()
+def parseTime(text):
+    return datetime.datetime.strptime(text,'%H%M').strftime('%H%M')
+
 
 def makeAlarm(title,minutesBefore=60):
     alarm = Alarm()
@@ -53,61 +62,23 @@ def saveEvents():
 
     
 
-def addEvent():
+def addEvent(desc,date,time,mod,freq):
     global eventNum
-    newEvent = {}
-    while True:
-        try:
-            eventDate = input("When is the date? (DDMMYY)")
-            startDate = datetime.datetime.strptime(eventDate, "%d%m%y").date()
-            break
-        except ValueError:
-            print("Please enter a valid date in DDMMYY format.")
-    while True:
-        eventTime = input("When is the time? (HHMM, 24hrs)")
-        try:
-            eventTime = datetime.datetime.strptime(eventTime, "%H%M").strftime("%H%M")
-            break
-        except ValueError:
-            print("Enter a valid time 0000-2359")
-    eventMod = input("Module code?")
-    eventDesc = input("What is the description?")
-    while True:
-        eventType = input("Is the event recurring (R) or one-time (O)?").strip().upper()
-        if eventType in {'R','O'}:
-            break
-    if eventType == 'R':
-        eventTypes = {
-            'D':'DAILY',
-            'W':'WEEKLY',
-            'M':'MONTHLY'
-        }
-        while True:
-            eventFreq = input("How frequent? Daily (D), Weekly (W), Monthly (M)").strip().upper()
 
-            if eventFreq in {"D","W","M"}:
-                break
-            print('Please enter D,W,M')
-        eventFreq = eventTypes[eventFreq]
-
-    else:
-        eventFreq = None
     
-    newEvent[eventNum] = {
-        'type':eventType,
-        'freq':eventFreq,
-        'date':startDate,
-        'time':eventTime,
-        'mod':eventMod,
-        'desc':eventDesc,
+    events[eventNum] = {
+        'type':'R' if freq else 'O',
+        'freq':freq,
+        'date':date,
+        'time':time,
+        'mod':mod,
+        'desc':desc,
         'uid': str(uuid.uuid4()),
         'needsUpdating' : False
     }
     eventNum += 1
-    events.update(newEvent)
 
     saveEvents()
-    print("Event added.")
 def viewUpcomingEvent():
     currentDate = datetime.date.today()
     week = []
@@ -138,6 +109,9 @@ def viewUpcomingEvent():
         for event in year:
             viewEvent(event)
 
+
+
+
 def deleteEvent():
     id = int(input("What is the record number?: "))
     removedEvent = events.pop(id,None)
@@ -150,30 +124,20 @@ def deleteEvent():
     saveEvents()
     
 
-def editEvent():
-    id = int(input("What is the record number?: "))
+def editEvent(id,field,value):
     if id not in events:
-        print("Invalid record number")
-        return
-    edit = input("What do you want to edit?: (date,time,mod,desc)").strip().lower()
-    newentry = input("What do you want to change the field to?")
-    if edit in {'date','time','mod','desc'}:
-        if edit == 'time':
-            try:
-                newentry = datetime.datetime.strptime(newentry,'%H%M').strftime('%H%M')
-            except ValueError:
-                print("Not a valid time! 0000-2359")
-                return
-        if edit == 'date':
-            try:
-                newentry = datetime.datetime.strptime(newentry,'%d%m%y').date()
-            except ValueError:
-                print("Invalid date!")
-                return
-        events[id][edit] = newentry
-    else:
-        print("Error, Invalid edit")
-        return
+        sys.exit('Invalid record number')
+    if field == 'date':
+        try:
+            value = parseDate(value)
+        except ValueError:
+            sys.exit(f'{value} is an invalid date')
+    elif field == 'time':
+        try:
+            value = parseTime(value)
+        except ValueError:
+            sys.exit(f'{value} is an invalid time')
+    events[id][field] = value
     events[id]['needsUpdating'] = True
     saveEvents()
     print("Event edited.")
@@ -279,18 +243,12 @@ def syncEvents():
                 print("event added")
         saveEvents()
 
-def parseDate(text):
-    return datetime.datetime.strptime(text,'%d%m%y').date()
 def dateArg(text):
     try:
         return parseDate(text)
     except ValueError:
         raise argparse.ArgumentTypeError(f'{text} is not a valid date, use DDMMYY')
-
-def parseTime(text):
-    return datetime.datetime.strptime(text,'%H%M').strftime('%H%M')
-
-def dateArg(text):
+def timeArg(text):
     try:
         return parseTime(text)
     except ValueError:
@@ -316,9 +274,9 @@ def buildParser():
 
     add = commands.add_parser('add', help='Add a new event')
     add.add_argument('desc',help='What the event is')
-    add.add_argument('date',help='Date of event as DDMMYY')
-    add.add_argument('time',help='Time of event as HHMM 24hours')
-    add.add_argument('--mod',help='Module (if applicable)')
+    add.add_argument('date',type=dateArg,help='Date of event as DDMMYY')
+    add.add_argument('time',type=timeArg,help='Time of event as HHMM 24hours')
+    add.add_argument('--mod',help='Module (if applicable)',default='')
     add.add_argument('--repeat',help='How often?',choices=['daily','weekly','monthly'])
 
     commands.add_parser('list', help='Show all events')
@@ -329,7 +287,23 @@ def buildParser():
 
     edit = commands.add_parser('edit',help='Edit an event')
     edit.add_argument('id',type=int,help='Record number')
-    edit.add_argument('field',choice=['date','time','mod','desc'])
+    edit.add_argument('field',choices=['date','time','mod','desc'])
     edit.add_argument('value',help='New value')
 
     commands.add_parser('sync', help='sync events to iCloud')
+    return parser
+
+def runCommand(args):
+    if args.command == 'add':
+        if args.repeat:
+            eventFreq = args.repeat.upper()
+        else:
+            eventFreq = None
+        addEvent(args.desc,args.date,args.time,args.mod,eventFreq)
+        print('Event added successfully')
+    elif args.command == 'edit':
+        editEvent(args.id,args.field,args.value)
+    elif args.command == 'delete':
+        pass
+if __name__ == '__main__':
+    runCommand(buildParser().parse_args())
