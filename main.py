@@ -5,6 +5,7 @@ from getpass import getpass
 from zoneinfo import ZoneInfo
 import uuid
 from icalendar import Alarm
+import argparse
 
 with open('events.json','r') as f:
     rawevents = json.load(f)
@@ -292,17 +293,28 @@ def viewEvent(eventNum):
     print("Description: ",events[eventNum]['desc'])
     print()
 
-while True:
-    event = int(input("What would you like to do? \n 1. View all events \n 2. Add a new event \n 3. View upcoming event \n 4. Delete an event \n 5. Edit an event \n 6. Sync events \n Answer :"))
-    if event == 1:
-        viewAllEvents()
-    elif event == 2:
-        addEvent()
-    elif event == 3:
-        viewUpcomingEvent()
-    elif event == 4:
-        deleteEvent()
-    elif event == 5:
-        editEvent()
-    elif event == 6:
-        syncEvents()
+
+
+def buildParser():
+    parser = argparse.ArgumentParser(description = 'Manage events and sync then to iCloud calendar. --help for help')
+    commands = parser.add_subparsers(dest='command')
+
+    add = commands.add_parser('add', help='Add a new event')
+    add.add_argument('desc',help='What the event is')
+    add.add_argument('date',help='Date of event as DDMMYY')
+    add.add_argument('time',help='Time of event as HHMM 24hours')
+    add.add_argument('--mod',help='Module (if applicable)')
+    add.add_argument('--repeat',help='How often?',choices=['daily','weekly','monthly'])
+
+    commands.add_parser('list', help='Show all events')
+    commands.add_parser('upcoming',help='View upcoming events')
+
+    delete = commands.add_parser('delete',help='Delete an event')
+    delete.add_argument('id',type=int,help='record number')
+
+    edit = commands.add_parser('edit',help='Edit an event')
+    edit.add_argument('id',type=int,help='Record number')
+    edit.add_argument('field',choice=['date','time','mod','desc'])
+    edit.add_argument('value',help='New value')
+
+    commands.add_parser('sync', help='sync events to iCloud')
