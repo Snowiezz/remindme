@@ -112,8 +112,7 @@ def viewUpcomingEvent():
 
 
 
-def deleteEvent():
-    id = int(input("What is the record number?: "))
+def deleteEvent(id):
     removedEvent = events.pop(id,None)
     if removedEvent is None:
         print('Event not found')
@@ -253,11 +252,6 @@ def timeArg(text):
         return parseTime(text)
     except ValueError:
         raise argparse.ArgumentTypeError(f'{text} is not a valid time, use HHMM 24 Hours')
-
-
-    
-
-
 def viewEvent(eventNum):
     print()
     print('Record',eventNum)
@@ -304,6 +298,12 @@ def runCommand(args):
     elif args.command == 'edit':
         editEvent(args.id,args.field,args.value)
     elif args.command == 'delete':
-        pass
+        deleteEvent(args.id)
+    elif args.command == 'upcoming':
+        viewUpcomingEvent()
+    elif args.command == 'list':
+        viewAllEvents()
+    elif args.command == 'sync':
+        syncEvents()
 if __name__ == '__main__':
     runCommand(buildParser().parse_args())
