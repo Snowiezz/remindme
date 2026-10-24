@@ -1,1 +1,2 @@
 caldav>=3.5
+icalendar>=6.0
