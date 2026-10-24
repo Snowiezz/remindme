@@ -269,7 +269,7 @@ def viewEvent(eventNum):
     print()
 
 def viewAllEvents():
-        if not events:
+    if not events:
         print('No events created')
         return
     print("--------")
@@ -322,6 +322,13 @@ def runCommand(args):
         viewAllEvents()
     elif args.command == 'sync':
         syncEvents()
+    else:
+        parser.
     
 if __name__ == '__main__':
-    runCommand(buildParser().parse_args())
+    parser = buildParser()
+    args = parser.parse_args()
+    if args.command is None:
+        parser.print_help()
+    else:
+        runCommand(args)
