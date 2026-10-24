@@ -8,6 +8,14 @@ from icalendar import Alarm
 import argparse
 import sys
 from caldav.lib.error import AuthorizationError
+from pathlib import Path
+
+
+
+DATA_DIR = Path(__file__).parent
+EVENTS_FILE = DATA_DIR / 'events.json'
+DELETED_FILE = DATA_DIR / 'deleted_events.json'
+
 
 
 def loadJson(path,default):
@@ -16,8 +24,8 @@ def loadJson(path,default):
             return json.load(f)
     except FileNotFoundError:
         return default
-rawevents = loadJson('events.json',{})
-pendingDeletes = loadJson('deleted_events.json',[])
+rawevents = loadJson(EVENTS_FILE,{})
+pendingDeletes = loadJson(DELETED_FILE)
 events = {}
 
 for eventId, details in rawevents.items():
@@ -51,9 +59,9 @@ def saveEvents():
         savedDetails['date'] = details['date'].isoformat()
         eventsToSave[eventId] = savedDetails
 
-    with open('events.json', 'w') as f:
+    with open(EVENTS_FILE, 'w') as f:
         json.dump(eventsToSave, f, indent=4)
-    with open('deleted_events.json','w') as f:
+    with open(DELETED_FILE,'w') as f:
         json.dump(pendingDeletes,f,indent=4)
 
     
