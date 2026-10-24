@@ -269,12 +269,12 @@ def viewEvent(eventNum):
     print()
 
 def viewAllEvents():
-    events = sorted(events.items(), key=lambda item: item[1]['date'])
+    sorted(events.items(), key=lambda item: item[1]['date'])
     if not events:
         print('No events created')
         return
     print("--------")
-    for eventNum in events:
+    for eventNum, _ in sorted(events.items(), key=lambda item: item[1]['date']):
         viewEvent(eventNum)
     print("--------")
 
