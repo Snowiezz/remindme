@@ -43,15 +43,6 @@ def makeAlarm(title,minutesBefore=60):
 
 
 
-def viewAllEvents():
-    print("--------")
-    for eventNum, details in events.items():
-        print('Record',eventNum)
-        for record,value in details.items():
-            print(record,value)
-        print("\n")
-    print("--------")
-
 
 def saveEvents():
     eventsToSave = {}
@@ -260,12 +251,24 @@ def timeArg(text):
     except ValueError:
         raise argparse.ArgumentTypeError(f'{text} is not a valid time, use HHMM 24 Hours')
 def viewEvent(eventNum):
-    print()
     print('Record',eventNum)
-    print("Module: ",events[eventNum]['mod'])
-    print("Date: ", events[eventNum]['date'].strftime("%d %B %Y"))  
+    if events[eventNum]['mod']:
+        print("Module: ",events[eventNum]['mod'])
+    print("Date: ", events[eventNum]['date'].strftime("%d %B %Y"))
+    print('Time: ',datetime.datetime.strptime(events[eventNum]['time'],'%H%M').strftime('%H:%M'))  
     print("Description: ",events[eventNum]['desc'])
+
     print()
+
+def viewAllEvents():
+    events = sorted(events.items(), key=lambda item: item[1]['date'])
+    if not events:
+        print('No events created')
+        return
+    print("--------")
+    for eventNum in events:
+        viewEvent(eventNum)
+    print("--------")
 
 
 
