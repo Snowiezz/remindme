@@ -25,7 +25,6 @@ for eventId, details in rawevents.items():
     events[int(eventId)] = details
 eventNum = max(events, default=0) + 1
 
-    pendingDeletes = json.load(f)
 
 
 #parse
