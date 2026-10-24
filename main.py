@@ -280,7 +280,7 @@ def viewAllEvents():
 
 
 def buildParser():
-    parser = argparse.ArgumentParser(description = 'Manage events and sync then to iCloud calendar. --help for help')
+    parser = argparse.ArgumentParser(description = 'Manage events and sync them to iCloud calendar. --help for help')
     commands = parser.add_subparsers(dest='command')
 
     add = commands.add_parser('add', help='Add a new event')
