@@ -7,10 +7,17 @@ import uuid
 from icalendar import Alarm
 import argparse
 import sys
+from caldav.lib.error import AuthorizationError
 
-with open('events.json','r') as f:
-    rawevents = json.load(f)
 
+def loadJson(path,default):
+    try:
+        with open(path,'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return default
+rawevents = loadJson(f,{})
+pendingDeletes = loadJson('deleted_events.json',[])
 events = {}
 
 for eventId, details in rawevents.items():
@@ -18,7 +25,6 @@ for eventId, details in rawevents.items():
     events[int(eventId)] = details
 eventNum = max(events, default=0) + 1
 
-with open('deleted_events.json','r') as f:
     pendingDeletes = json.load(f)
 
 
@@ -145,102 +151,104 @@ def editEvent(id,field,value):
 def syncEvents():
     email = input("Email: ")
     password = getpass("Password: ")
-    with caldav.DAVClient(
-        url="https://caldav.icloud.com/",
-        username=email,
-        password=password
-    ) as client:
-        calendars = client.get_calendars()
-        calendarName = 'RemindMeNEW'
+    try:
+        with caldav.DAVClient(
+            url="https://caldav.icloud.com/",
+            username=email,
+            password=password
+        ) as client:
+            calendars = client.get_calendars()
+            calendarName = 'RemindMeNEW'
 
-        matches = [
-            calendar for calendar in calendars
-            if calendar.get_display_name() == calendarName
-        ]
+            matches = [
+                calendar for calendar in calendars
+                if calendar.get_display_name() == calendarName
+            ]
 
-        if not matches:
-            print('Error, no calendar found')
-            return
-        
-        calendar = matches[0]
+            if not matches:
+                sys.exit('No calendar found, check README to create a calendar.')
+            
+            calendar = matches[0]
 
-        currentEvents = calendar.get_events()
-
-
-  
+            currentEvents = calendar.get_events()
 
 
-
-
-        existing = {}
-        for event in currentEvents:
-            existing[str(event.get_icalendar_component()['UID'])] = event
-
-        # deleted events
-
-        for uid in pendingDeletes:
-            if uid in existing:
-                existing[uid].delete()
-                del existing[uid]
-                print('Event deleted')
-        pendingDeletes.clear()
-
-        for id,detail in events.items():
-            title = detail['desc']
-            startTime = datetime.datetime.strptime(detail['time'], "%H%M").time()
-
-            start = datetime.datetime.combine(detail['date'],startTime,tzinfo=ZoneInfo("Europe/London"))
+    
 
 
 
-            eventUID = detail.get('uid')
 
-            needsUpdating = detail.get('needsUpdating',False)
+            existing = {}
+            for event in currentEvents:
+                existing[str(event.get_icalendar_component()['UID'])] = event
 
-            if eventUID is None:
-                detail['uid'] = str(uuid.uuid4())
+            # deleted events
+
+            for uid in pendingDeletes:
+                if uid in existing:
+                    existing[uid].delete()
+                    del existing[uid]
+                    print('Event deleted')
+            pendingDeletes.clear()
+
+            for id,detail in events.items():
+                title = detail['desc']
+                startTime = datetime.datetime.strptime(detail['time'], "%H%M").time()
+
+                start = datetime.datetime.combine(detail['date'],startTime,tzinfo=ZoneInfo("Europe/London"))
+
+
+
                 eventUID = detail.get('uid')
-                saveEvents()
-            if eventUID in existing and needsUpdating == False:
-                print('event already in')
-            elif eventUID in existing and needsUpdating:
-                remoteEvent = existing[eventUID]
-                comp = remoteEvent.icalendar_component
 
-                for field in ('summary','dtstart','dtend'):
-                    comp.pop(field,None)
-                comp.add('summary', title)
-                comp.add('dtstart',start)
-                comp.add('dtend',start + datetime.timedelta(minutes=30))
-                comp.subcomponents = [c for c in comp.subcomponents if c.name != 'VALARM']
-                comp.add_component(makeAlarm(title))
-                remoteEvent.save()
-                detail['needsUpdating'] = False
-                print('Event updated')
-            else:
-                if detail['freq'] is None:
-                    calendar.add_event(
-                        dtstart=start,
-                        dtend=start + datetime.timedelta(minutes=30),
-                        summary=title,
-                        uid=eventUID,
-                        alarm_trigger=datetime.timedelta(minutes=-60),
-                        alarm_action='DISPLAY',
-                        alarm_description=title
-                    )
+                needsUpdating = detail.get('needsUpdating',False)
+
+                if eventUID is None:
+                    detail['uid'] = str(uuid.uuid4())
+                    eventUID = detail.get('uid')
+                    saveEvents()
+                if eventUID in existing and needsUpdating == False:
+                    print('event already in')
+                elif eventUID in existing and needsUpdating:
+                    remoteEvent = existing[eventUID]
+                    comp = remoteEvent.icalendar_component
+
+                    for field in ('summary','dtstart','dtend'):
+                        comp.pop(field,None)
+                    comp.add('summary', title)
+                    comp.add('dtstart',start)
+                    comp.add('dtend',start + datetime.timedelta(minutes=30))
+                    comp.subcomponents = [c for c in comp.subcomponents if c.name != 'VALARM']
+                    comp.add_component(makeAlarm(title))
+                    remoteEvent.save()
+                    detail['needsUpdating'] = False
+                    print('Event updated')
                 else:
-                    calendar.add_event(
-                        dtstart=start,
-                        dtend=start + datetime.timedelta(minutes=30),
-                        summary=title,
-                        uid=eventUID,
-                        rrule={'FREQ': detail['freq']},
-                        alarm_trigger=datetime.timedelta(minutes=-60),
-                        alarm_action='DISPLAY',
-                        alarm_description=title
-                    )
-                print("event added")
-        saveEvents()
+                    if detail['freq'] is None:
+                        calendar.add_event(
+                            dtstart=start,
+                            dtend=start + datetime.timedelta(minutes=30),
+                            summary=title,
+                            uid=eventUID,
+                            alarm_trigger=datetime.timedelta(minutes=-60),
+                            alarm_action='DISPLAY',
+                            alarm_description=title
+                        )
+                    else:
+                        calendar.add_event(
+                            dtstart=start,
+                            dtend=start + datetime.timedelta(minutes=30),
+                            summary=title,
+                            uid=eventUID,
+                            rrule={'FREQ': detail['freq']},
+                            alarm_trigger=datetime.timedelta(minutes=-60),
+                            alarm_action='DISPLAY',
+                            alarm_description=title
+                        )
+                    print("event added")
+            saveEvents()
+    except AuthorizationError:
+        sys.exit('Login failed, check your email and app-specific password')
 
 def dateArg(text):
     try:
@@ -305,5 +313,6 @@ def runCommand(args):
         viewAllEvents()
     elif args.command == 'sync':
         syncEvents()
+    
 if __name__ == '__main__':
     runCommand(buildParser().parse_args())
