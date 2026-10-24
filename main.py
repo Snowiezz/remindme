@@ -25,7 +25,7 @@ def loadJson(path,default):
     except FileNotFoundError:
         return default
 rawevents = loadJson(EVENTS_FILE,{})
-pendingDeletes = loadJson(DELETED_FILE)
+pendingDeletes = loadJson(DELETED_FILE,[])
 events = {}
 
 for eventId, details in rawevents.items():
