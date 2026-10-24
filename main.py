@@ -322,8 +322,6 @@ def runCommand(args):
         viewAllEvents()
     elif args.command == 'sync':
         syncEvents()
-    else:
-        parser.
     
 if __name__ == '__main__':
     parser = buildParser()
